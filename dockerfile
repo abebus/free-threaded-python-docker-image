@@ -1,11 +1,9 @@
-# from https://github.com/docker-library/python/blob/16e96e15aa5c7fec8ca41436159d62b22a733daf/3.13-rc/slim-bookworm/Dockerfile
-
+# from https://github.com/docker-library/python/blob/master/3.13/slim-bookworm/Dockerfile
 #
 # NOTE: THIS DOCKERFILE IS GENERATED VIA "apply-templates.sh"
 #
-# PLEASE DO NOT EDIT IT DIRECTLY.
+# PLEASE DO NOT EDIT IT DIRECTLY. haha i've just done it!!!!!!
 #
-# oh boy i will
 
 FROM debian:bookworm-slim
 
@@ -23,7 +21,7 @@ RUN set -eux; \
 	rm -rf /var/lib/apt/lists/*
 
 ENV GPG_KEY 7169605F62C751356D054A26A821E680E5FA6305
-ENV PYTHON_VERSION 3.13.0rc1
+ENV PYTHON_VERSION 3.13.0
 
 RUN set -eux; \
 	\
@@ -74,8 +72,8 @@ RUN set -eux; \
 		--enable-shared \
 		--with-lto \
 		--with-system-expat \
-		--without-ensurepip \
-    --disable-gil \
+		--with-ensurepip \
+    		--disable-gil \
 	; \
 	nproc="$(nproc)"; \
 	EXTRA_CFLAGS="$(dpkg-buildflags --get CFLAGS)"; \
@@ -122,47 +120,17 @@ RUN set -eux; \
 	apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false; \
 	rm -rf /var/lib/apt/lists/*; \
 	\
-	python3 --version
+	export PYTHONDONTWRITEBYTECODE=1; \
+	python3 --version; \
+	pip3 --version
 
 # make some useful symlinks that are expected to exist ("/usr/local/bin/python" and friends)
 RUN set -eux; \
-	for src in idle3 pydoc3 python3 python3-config; do \
+	for src in idle3 pip3 pydoc3 python3 python3-config; do \
 		dst="$(echo "$src" | tr -d 3)"; \
 		[ -s "/usr/local/bin/$src" ]; \
 		[ ! -e "/usr/local/bin/$dst" ]; \
 		ln -svT "$src" "/usr/local/bin/$dst"; \
 	done
-
-# if this is called "PIP_VERSION", pip explodes with "ValueError: invalid truth value '<VERSION>'"
-ENV PYTHON_PIP_VERSION 24.1.1
-# https://github.com/pypa/get-pip
-ENV PYTHON_GET_PIP_URL https://github.com/pypa/get-pip/raw/66d8a0f637083e2c3ddffc0cb1e65ce126afb856/public/get-pip.py
-ENV PYTHON_GET_PIP_SHA256 6fb7b781206356f45ad79efbb19322caa6c2a5ad39092d0d44d0fec94117e118
-
-RUN set -eux; \
-	\
-	savedAptMark="$(apt-mark showmanual)"; \
-	apt-get update; \
-	apt-get install -y --no-install-recommends wget; \
-	\
-	wget -O get-pip.py "$PYTHON_GET_PIP_URL"; \
-	echo "$PYTHON_GET_PIP_SHA256 *get-pip.py" | sha256sum -c -; \
-	\
-	apt-mark auto '.*' > /dev/null; \
-	[ -z "$savedAptMark" ] || apt-mark manual $savedAptMark > /dev/null; \
-	apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false; \
-	rm -rf /var/lib/apt/lists/*; \
-	\
-	export PYTHONDONTWRITEBYTECODE=1; \
-	\
-	python get-pip.py \
-		--disable-pip-version-check \
-		--no-cache-dir \
-		--no-compile \
-		"pip==$PYTHON_PIP_VERSION" \
-	; \
-	rm -f get-pip.py; \
-	\
-	pip --version
 
 CMD ["python3"]
