@@ -2,6 +2,16 @@
 
 This is a minimal clone of the official Python Docker image with **free-threading enabled** (`--disable-gil`).
 
+## Better Options
+
+Use standalone builds like the ones from Astral:  
+https://github.com/astral-sh/python-build-standalone/
+
+Example usage:  
+https://github.com/DNALinux/OmicsContainers/blob/main/Python/3.13.1-no_GIL/Dockerfile
+
+Note: I am lazy and don’t keep up with updates
+
 ## What’s Different?
 
 Literally just one thing:  
